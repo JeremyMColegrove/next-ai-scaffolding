@@ -31,10 +31,10 @@ back with the result before continuing).
    yes, tell the user they'll need an AWS account for Amazon SES — walk them
    through creating one and getting credentials now, or note that it can be
    done later and the `AWS_*` env vars can stay blank until then.
-5. **shadcn/ui preset.** Ask the user to go to https://ui.shadcn.com, pick a
-   color scheme and set of components, and copy the "preset" command it gives
-   them (looks like `npx shadcn@latest apply --preset <code>`). Get that exact
-   command from them.
+5. **shadcn/ui preset.** Ask the user to go to https://ui.shadcn.com/create, pick a
+   color scheme and set of components, and copy the "preset" in the left navbar. it gives
+   them (looks like `--preset <code>`). Get that preset from them. The command to apply it
+   to the project is `npx shadcn@latest apply --preset <code>`
 6. **Local Postgres settings.** Propose defaults — database name `app`, port
    `5432`, username `postgres` — and ask the user to confirm or override (e.g.
    if port 5432 is already in use on their machine, including by another
@@ -81,7 +81,7 @@ T3's scaffold pins versions that lag behind current releases. Immediately
 after scaffolding, bring both up to latest inside the project folder:
 
 ```
-npm install next@latest react@latest react-dom@latest
+npx @next/codemod upgrade major
 npm install -D tailwindcss@latest @tailwindcss/postcss@latest
 ```
 
