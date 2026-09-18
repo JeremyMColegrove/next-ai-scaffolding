@@ -16,33 +16,49 @@ back with the result before continuing).
 
 1. **Project name**. Used as the folder name and package
    name.
-2. **Should the app send emails** (password resets, notifications, etc)? If
+2. **Package manager.** Ask which they want to use: npm, pnpm, yarn, or bun.
+   Default to npm if they have no preference. The commands throughout this
+   file are written for npm — substitute the equivalent command for whichever
+   manager the user picked (e.g. `pnpm add`/`pnpm run`, `yarn add`/`yarn`,
+   `bun add`/`bun run`) everywhere below.
+3. **Node.js version.** Confirm the user has Node.js 20 or later installed
+   (`node -v`). If not, tell them to install it before continuing.
+4. **Should the app send emails** (password resets, notifications, etc)? If
    yes, tell the user they'll need an AWS account for Amazon SES — walk them
    through creating one and getting credentials now, or note that it can be
    done later and the `AWS_*` env vars can stay blank until then.
-3. **Clerk keys.** Ask the user to:
+5. **Clerk keys.** Ask the user to:
    - Create a free account at https://clerk.com and create a new
      "application."
    - Go to **API Keys** in that application's dashboard and copy the
      **Publishable key** and **Secret key** into the .env variables you will add.
-
-4. **shadcn/ui preset.** Ask the user to go to https://ui.shadcn.com, pick a
+6. **Clerk webhook.** This app syncs Clerk users into its own database, so a
+   webhook is required — don't ask the user whether they want one. Have them
+   go to **Webhooks** in the Clerk dashboard, add an endpoint, and copy its
+   **Signing Secret** — you'll store it as `CLERK_WEBHOOK_SIGNING_SECRET` in
+   Step 5.
+7. **shadcn/ui preset.** Ask the user to go to https://ui.shadcn.com, pick a
    color scheme and set of components, and copy the "preset" command it gives
    them (looks like `npx shadcn@latest apply --preset <code>`). Get that exact
    command from them.
-5. **Local Postgres settings.** Propose defaults — database name `app`, port
-   `5432` — and ask the user to confirm or override (e.g. if port 5432 is
-   already in use on their machine). Generate a random string yourself to use
-   as `POSTGRES_PASSWORD` and show it to the user; don't ask them to invent
-   one.
-6. **Docker Desktop.** Ask the user to confirm Docker Desktop
-   (https://www.docker.com/products/docker-desktop/) is installed and
-   running — Step 5 (starting the local database) requires it. If it isn't
-   installed, tell them to install and start it before you continue past
-   Step 4.
+8. **Local Postgres settings.** Propose defaults — database name `app`, port
+   `5432`, username `postgres` — and ask the user to confirm or override (e.g.
+   if port 5432 is already in use on their machine, including by another
+   project scaffolded this same way — check with `lsof -i :5432` if unsure).
+   Generate a random string yourself to use as `POSTGRES_PASSWORD` and show it
+   to the user; don't ask them to invent one.
+9. **Deployment target.** Ask whether this will deploy to Vercel or be
+   self-hosted. Step 7 (Docker) is only needed for self-hosting — skip it
+   entirely if the user says Vercel.
+10. **Docker Desktop.** If the user is self-hosting, ask them to confirm
+    Docker Desktop (https://www.docker.com/products/docker-desktop/) is
+    installed and running — Step 6 (starting the local database) requires it.
+    If it isn't installed, tell them to install and start it before you
+    continue past Step 4.
 
-Once you have all six answers, proceed through Steps 1–7 without stopping for
-further questions, using the answers collected here.
+Once you have all answers, proceed through Steps 1–7 (or 1–6 if deploying to
+Vercel) without stopping for further questions, using the answers collected
+here.
 
 ---
 
@@ -91,6 +107,10 @@ PostCSS plugin setup and CSS import syntax. Fix any breakage before moving
 on, then run `npm run typecheck` and `npm run build` to confirm the upgrade
 didn't break anything.
 
+Commit this working baseline (T3 already initializes a git repo during
+scaffolding) before moving on to Step 3, so there's a clean checkpoint to
+diff against as later steps modify the project.
+
 ---
 
 ## Step 3: Add pre-built design components (shadcn/ui)
@@ -138,7 +158,7 @@ POSTGRES_PASSWORD=
 POSTGRES_DB=app
 
 # Full connection string the app uses — must match the three values above.
-DATABASE_URL="postgresql://postgres:password@localhost:5432/<database_schema>"
+DATABASE_URL="postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@localhost:<port>/<POSTGRES_DB>"
 
 # --- Clerk (sign-in / sign-up) ---
 # From the Clerk dashboard > API Keys.
@@ -146,7 +166,7 @@ CLERK_SECRET_KEY=
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 
 # From the Clerk dashboard > Webhooks > your endpoint > Signing Secret.
-# Only needed if you set up a webhook to sync users into your own database.
+# Required — the app syncs Clerk users into its own database via this webhook.
 CLERK_WEBHOOK_SIGNING_SECRET=
 
 # --- Optional: outbound email (Amazon SES) ---
@@ -179,9 +199,8 @@ and to `runtimeEnv`:
 CLERK_WEBHOOK_SIGNING_SECRET: process.env.CLERK_WEBHOOK_SIGNING_SECRET,
 ```
 
-(Skip this if the user didn't set up a Clerk webhook.) Do **not** add
-`CLERK_SECRET_KEY` or `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` here — Clerk reads
-those itself.
+Do **not** add `CLERK_SECRET_KEY` or `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` here —
+Clerk reads those itself.
 
 ---
 
@@ -200,10 +219,11 @@ Then:
    Postgres container in Docker, matching whatever user/password/port was
    set.
 2. Run `npx drizzle-kit push` — this reads `src/server/db/schema.ts` and
-   creates the matching tables in that fresh database. (This is just for
-   getting a new dev database initialized. Once the schema is stable and real
-   data exists, switch to proper migrations — see "How to work with this user
-   going forward," below.)
+   creates the matching tables in that fresh database. This one-time push is
+   the sole exception to the "database changes go through the user" rule
+   below — it's just getting a brand-new, empty dev database initialized.
+   Once this initial schema exists, switch to proper migrations and let the
+   user run them — see "How to work with this user going forward," below.
 3. Confirm it worked: run `npm run db:studio` to open a browser view of the
    database, or run `docker ps` to confirm the container is up.
 
@@ -265,9 +285,7 @@ main().catch((error) => {
 });
 ```
 
-Create `Dockerfile` in the project root (replace `<project-name>` with the
-name collected in Step 0 anywhere it appears — there's no occurrence in this
-file, it's just for reference):
+Create `Dockerfile` in the project root:
 
 ```dockerfile
 FROM node:24-bookworm-slim AS base
