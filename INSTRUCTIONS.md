@@ -73,6 +73,16 @@ This creates the whole project skeleton: the folder structure, the database
 connection code, and a config file (`src/env.js`) that keeps track of which
 secret keys the app needs.
 
+After it has been scaffolded: Update next.config.js to include these configuration changes:
+```
+output: "standalone",
+	// Lets pages prerender a static shell (e.g. the dashboard skeletons) while
+	// deferring anything behind a Suspense boundary that reads per-request data
+	// (headers/cookies/auth) to render dynamically at request time instead of
+	// forcing the whole page to skip static generation.
+cacheComponents: true,
+```
+
 ---
 
 ## Step 2: Add pre-built design components (shadcn/ui)
