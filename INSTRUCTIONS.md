@@ -27,37 +27,23 @@ back with the result before continuing).
    yes, tell the user they'll need an AWS account for Amazon SES — walk them
    through creating one and getting credentials now, or note that it can be
    done later and the `AWS_*` env vars can stay blank until then.
-5. **Clerk keys.** Ask the user to:
-   - Create a free account at https://clerk.com and create a new
-     "application."
-   - Go to **API Keys** in that application's dashboard and copy the
-     **Publishable key** and **Secret key** into the .env variables you will add.
-6. **Clerk webhook.** This app syncs Clerk users into its own database, so a
-   webhook is required — don't ask the user whether they want one. Have them
-   go to **Webhooks** in the Clerk dashboard, add an endpoint, and copy its
-   **Signing Secret** — you'll store it as `CLERK_WEBHOOK_SIGNING_SECRET` in
-   Step 5.
-7. **shadcn/ui preset.** Ask the user to go to https://ui.shadcn.com, pick a
+5. **shadcn/ui preset.** Ask the user to go to https://ui.shadcn.com, pick a
    color scheme and set of components, and copy the "preset" command it gives
    them (looks like `npx shadcn@latest apply --preset <code>`). Get that exact
    command from them.
-8. **Local Postgres settings.** Propose defaults — database name `app`, port
+6. **Local Postgres settings.** Propose defaults — database name `app`, port
    `5432`, username `postgres` — and ask the user to confirm or override (e.g.
    if port 5432 is already in use on their machine, including by another
    project scaffolded this same way — check with `lsof -i :5432` if unsure).
    Generate a random string yourself to use as `POSTGRES_PASSWORD` and show it
    to the user; don't ask them to invent one.
-9. **Deployment target.** Ask whether this will deploy to Vercel or be
-   self-hosted. Step 7 (Docker) is only needed for self-hosting — skip it
-   entirely if the user says Vercel.
-10. **Docker Desktop.** If the user is self-hosting, ask them to confirm
+7. **Docker Desktop.** If the user is self-hosting, ask them to confirm
     Docker Desktop (https://www.docker.com/products/docker-desktop/) is
     installed and running — Step 6 (starting the local database) requires it.
     If it isn't installed, tell them to install and start it before you
     continue past Step 4.
 
-Once you have all answers, proceed through Steps 1–7 (or 1–6 if deploying to
-Vercel) without stopping for further questions, using the answers collected
+Once you have all answers, proceed through Steps 1–7 without stopping for further questions, using the answers collected
 here.
 
 ---
