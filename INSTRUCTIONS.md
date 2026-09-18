@@ -42,7 +42,7 @@ back with the result before continuing).
    Generate a random string yourself to use as `POSTGRES_PASSWORD` and show it
    to the user; don't ask them to invent one.
 
-Once you have all answers, proceed through Steps 1–7 without stopping for further questions, using the answers collected
+Once you have all answers, proceed through all steps without stopping for further questions, using the answers collected
 here.
 
 ---
@@ -101,8 +101,20 @@ Make a note in the .env that the NEXT_ variables need to be set to the
 production values before building the app.
 
 ---
+## Step 4:
+Upgrade this app to Next.js 16.
 
-## Step 4: Environment variables (`.env`)
+Before editing code, make sure AGENTS.md points at version-matched Next.js docs. If it is missing or outdated, follow [Set up AI agent docs](/docs/app/guides/upgrading/version-16#set-up-ai-agent-docs), then read AGENTS.md.
+
+Then follow the [Next.js 16 upgrade guide](/docs/app/guides/upgrading/version-16) as the source of truth for the migration. Use the [codemod](/docs/app/guides/upgrading/version-16#using-the-codemod) when you're ready to run the mechanical upgrade.
+
+Briefly explain the upgrade plan in user-facing language before making broad changes. Follow the documented defaults and keep moving unless the guide requires a project-specific decision, the change is destructive, credentials or environment setup are missing, or the correct migration is ambiguous. Keep the migration scoped to the upgrade, inspect the diff, run the relevant checks, and fix remaining breaking changes.
+
+After the app is upgraded, use the runtime verification flow from the [AI Coding Agents guide](/docs/app/guides/ai-agents) to confirm it still works. Prefer the `next-dev-loop` skill when it is available (Next.js 16.3 or later with Turbopack); otherwise fall back to the best available `next dev`, browser, and build checks. Open the key interactive UI states and check the Next dev indicator plus browser and server logs. Summarize what changed, what was verified, and what could not be verified.
+
+Before finishing, repeat the post-upgrade check in [Set up AI agent docs](/docs/app/guides/upgrading/version-16#set-up-ai-agent-docs) so the project is ready for future agent work.
+
+## Step 5: Environment variables (`.env`)
 
 Environment variables are where secret keys and settings live — they're never
 committed to source control. Create a file named `.env.example` in the
@@ -166,7 +178,7 @@ Clerk reads those itself.
 
 ---
 
-## Step 5: Start the local database
+## Step 6: Start the local database
 
 The app needs a running Postgres database to connect to — right now `.env`
 just has connection details pointing at one, but nothing is actually running
@@ -180,18 +192,16 @@ Then:
    the project root. It reads `DATABASE_URL` from `.env` and starts a local
    Postgres container in Docker, matching whatever user/password/port was
    set.
-2. Run `npx drizzle-kit push` — this reads `src/server/db/schema.ts` and
-   creates the matching tables in that fresh database. This one-time push is
-   the sole exception to the "database changes go through the user" rule
-   below — it's just getting a brand-new, empty dev database initialized.
-   Once this initial schema exists, switch to proper migrations and let the
-   user run them — see "How to work with this user going forward," below.
+2. Run `npx drizzle-kit general` and `npx drizzle-kit migrate` 
+  — this reads `src/server/  db/schema.ts` and creates the matching tables in that fresh database. 
+  This one-time push  is the sole exception to the "database changes go through the user" rule below — it's just getting a brand-new, empty dev database initialized.
+   Once this initial schema exists -- see "How to work with this user going forward," below.
 3. Confirm it worked: run `npm run db:studio` to open a browser view of the
    database, or run `docker ps` to confirm the container is up.
 
 ---
 
-## Step 6: Docker (packaging the app to run anywhere)
+## Step 7: Docker (packaging the app to run anywhere)
 
 Docker lets the finished app run identically on a laptop, a server, or any
 cloud host, without installing Node.js or Postgres directly on that machine.
