@@ -75,30 +75,7 @@ secret keys the app needs.
 
 ---
 
-## Step 2: Upgrade Next.js and Tailwind to latest
-
-T3's scaffold pins versions that lag behind current releases. Immediately
-after scaffolding, bring both up to latest inside the project folder:
-
-```
-npx @next/codemod upgrade major
-npm install -D tailwindcss@latest @tailwindcss/postcss@latest
-```
-
-After upgrading, check the installed Tailwind major version and diff it
-against what T3 scaffolded (`postcss.config.js`/`.mjs`, `globals.css`,
-`tailwind.config.ts` if present) — a Tailwind major bump can change the
-PostCSS plugin setup and CSS import syntax. Fix any breakage before moving
-on, then run `npm run typecheck` and `npm run build` to confirm the upgrade
-didn't break anything.
-
-Commit this working baseline (T3 already initializes a git repo during
-scaffolding) before moving on to Step 3, so there's a clean checkpoint to
-diff against as later steps modify the project.
-
----
-
-## Step 3: Add pre-built design components (shadcn/ui)
+## Step 2: Add pre-built design components (shadcn/ui)
 
 Run the preset command the user gave you in Step 0 inside the project folder:
 
@@ -108,7 +85,7 @@ npx shadcn@latest apply --preset <the-code-the-user-gave-you>
 
 ---
 
-## Step 4: Add sign-in / sign-up (Clerk)
+## Step 3: Add sign-in / sign-up (Clerk)
 
 Use your built-in `clerk-setup` skill to do this step — it knows the current
 Next.js App Router quickstart and will handle the details (installing
@@ -125,7 +102,7 @@ production values before building the app.
 
 ---
 
-## Step 5: Environment variables (`.env`)
+## Step 4: Environment variables (`.env`)
 
 Environment variables are where secret keys and settings live — they're never
 committed to source control. Create a file named `.env.example` in the
@@ -189,7 +166,7 @@ Clerk reads those itself.
 
 ---
 
-## Step 6: Start the local database
+## Step 5: Start the local database
 
 The app needs a running Postgres database to connect to — right now `.env`
 just has connection details pointing at one, but nothing is actually running
@@ -214,7 +191,7 @@ Then:
 
 ---
 
-## Step 7: Docker (packaging the app to run anywhere)
+## Step 6: Docker (packaging the app to run anywhere)
 
 Docker lets the finished app run identically on a laptop, a server, or any
 cloud host, without installing Node.js or Postgres directly on that machine.
