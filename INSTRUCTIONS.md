@@ -5,7 +5,13 @@ from scratch using: Next.js (App Router), TypeScript, Tailwind CSS, tRPC,
 Drizzle ORM with PostgreSQL, Clerk for authentication, and Docker for
 packaging. Follow the steps **in order**. Everything you need — exact
 commands and full file contents — is included below; this file is meant to be
-used alone, with no other project files or repository present yet.
+used alone, with no other project files or repository present yet. Peform
+as many actions autonymously as you can. The user should not be required
+to perform terminal commands.
+
+## Prerequisites:
+1. Make sure the user has Node >= 20 installed by running `node -v`
+2. Make sure the user has docker cli installed by running `docker -v`
 
 ## Step 0: Collect all user input up front
 
@@ -16,13 +22,11 @@ back with the result before continuing).
 
 1. **Project name**. Used as the folder name and package
    name.
-2. **Package manager.** Ask which they want to use: npm, pnpm, yarn, or bun.
+2. **Package manager.** Ask which they want to use: npm (default), pnpm, yarn, or bun.
    Default to npm if they have no preference. The commands throughout this
    file are written for npm — substitute the equivalent command for whichever
    manager the user picked (e.g. `pnpm add`/`pnpm run`, `yarn add`/`yarn`,
    `bun add`/`bun run`) everywhere below.
-3. **Node.js version.** Confirm the user has Node.js 20 or later installed
-   (`node -v`). If not, tell them to install it before continuing.
 4. **Should the app send emails** (password resets, notifications, etc)? If
    yes, tell the user they'll need an AWS account for Amazon SES — walk them
    through creating one and getting credentials now, or note that it can be
@@ -37,11 +41,6 @@ back with the result before continuing).
    project scaffolded this same way — check with `lsof -i :5432` if unsure).
    Generate a random string yourself to use as `POSTGRES_PASSWORD` and show it
    to the user; don't ask them to invent one.
-7. **Docker Desktop.** If the user is self-hosting, ask them to confirm
-    Docker Desktop (https://www.docker.com/products/docker-desktop/) is
-    installed and running — Step 6 (starting the local database) requires it.
-    If it isn't installed, tell them to install and start it before you
-    continue past Step 4.
 
 Once you have all answers, proceed through Steps 1–7 without stopping for further questions, using the answers collected
 here.
@@ -219,8 +218,6 @@ Then:
 
 Docker lets the finished app run identically on a laptop, a server, or any
 cloud host, without installing Node.js or Postgres directly on that machine.
-This step is optional if deploying to a platform like Vercel instead, but
-recommended for self-hosting.
 
 Create `scripts/docker-entrypoint.sh`:
 
