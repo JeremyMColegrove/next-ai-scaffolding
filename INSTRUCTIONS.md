@@ -202,7 +202,7 @@ Then:
    the project root. It reads `DATABASE_URL` from `.env` and starts a local
    Postgres container in Docker, matching whatever user/password/port was
    set.
-2. Run `npx drizzle-kit general` and `npx drizzle-kit migrate` 
+2. Run `npx drizzle-kit generate` and `npx drizzle-kit migrate` 
   — this reads `src/server/  db/schema.ts` and creates the matching tables in that fresh database. 
   This one-time push  is the sole exception to the "database changes go through the user" rule below — it's just getting a brand-new, empty dev database initialized.
    Once this initial schema exists -- see "How to work with this user going forward," below.
